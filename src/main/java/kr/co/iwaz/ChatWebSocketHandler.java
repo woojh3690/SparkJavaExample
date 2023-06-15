@@ -1,6 +1,5 @@
 package kr.co.iwaz;
 
-import com.google.gson.Gson;
 import kr.co.iwaz.model.ChatRes;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -14,7 +13,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static j2html.TagCreator.*;
-import static j2html.TagCreator.span;
 import static kr.co.iwaz.Main.gson;
 
 @WebSocket

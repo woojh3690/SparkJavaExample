@@ -47,7 +47,7 @@ public class SyncKafka extends Thread {
 
     @Override
     public void run() {
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             for (ConsumerRecord<String, String> record : this.consumer.getRecords()) {
                 try {
                     String jsonMsg = record.value();
