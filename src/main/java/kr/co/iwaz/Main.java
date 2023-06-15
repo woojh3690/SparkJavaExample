@@ -33,10 +33,12 @@ public class Main {
 
     // RestAPI <-> Kafka 연동 기능 초기화
     private static void initRestAPI() {
-        SyncKafka syncKafka = new SyncKafka("sync", data -> {
+        WebSocketIdParser parser = data -> {
             CommandReq command = gson.fromJson(data, CommandReq.class);
             return command.websocket_id;
-        });
+        };
+
+        SyncKafka syncKafka = new SyncKafka("192.168.0.218", 9092, "sync", 5, parser);
         syncKafka.start();
 
         post("/command", (request, response) -> {
