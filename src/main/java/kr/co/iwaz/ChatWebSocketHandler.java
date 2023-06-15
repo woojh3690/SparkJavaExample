@@ -15,13 +15,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static j2html.TagCreator.*;
 import static j2html.TagCreator.span;
+import static kr.co.iwaz.Main.gson;
 
 @WebSocket
 public class ChatWebSocketHandler {
 
     static Map<Session, String> userUsernameMap = new ConcurrentHashMap<>();
     static int nextUserNumber = 1; // 다음 유저 이름을 위한 인덱스
-    static Gson gson = new Gson();
 
     @OnWebSocketConnect
     public void onConnect(Session user) {

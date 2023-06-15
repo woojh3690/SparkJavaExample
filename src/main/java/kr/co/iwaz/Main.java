@@ -1,14 +1,20 @@
 package kr.co.iwaz;
 
+import com.google.gson.Gson;
+import kr.co.iwaz.model.CommandReq;
+
+import java.util.concurrent.CompletableFuture;
+
 import static kr.co.iwaz.ChatWebSocketHandler.broadcastMessage;
 import static spark.Spark.*;
 
 public class Main {
 
-    public static void main(String[] args) throws InterruptedException {
-        staticFileLocation("/public"); //index.html 는 다음 위치에서 서비스됨 localhost:4567 (default port)
-        webSocket("/chat", ChatWebSocketHandler.class);
+    static Gson gson = new Gson();
 
+    public static void main(String[] args) throws InterruptedException {
+        initBackgroundDataSend();
+        initRestAPI();
         init();
 
         long realTimeDataCounter = 0;
@@ -17,5 +23,29 @@ public class Main {
             realTimeDataCounter++;
             Thread.sleep(1000);
         }
+    }
+
+    // 백그라운드에서 실시간으로 websocket 에 데이터를 전송 기능 초기화
+    private static void initBackgroundDataSend() throws InterruptedException {
+        staticFileLocation("/public"); //index.html 는 다음 위치에서 서비스됨 localhost:4567 (default port)
+        webSocket("/chat", ChatWebSocketHandler.class);
+    }
+
+    // RestAPI <-> Kafka 연동 기능 초기화
+    private static void initRestAPI() {
+        SyncKafka syncKafka = new SyncKafka("sync", data -> {
+            CommandReq command = gson.fromJson(data, CommandReq.class);
+            return command.websocket_id;
+        });
+        syncKafka.start();
+
+        post("/command", (request, response) -> {
+            String body = request.body();
+            System.out.println("받은 메시지: " + body);
+            CompletableFuture<String> future = syncKafka.send("test", body);
+            String kafkaRes = future.get();
+            System.out.println(kafkaRes);
+            return kafkaRes;
+        });
     }
 }

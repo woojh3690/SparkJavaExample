@@ -18,7 +18,7 @@ public class SyncKafka extends Thread {
 
     private final static Map<String, CompletableFuture<String>> futureMap = new ConcurrentHashMap<>();
 
-    public SyncKafka(WebSocketIdParser webSocketIdParser) {
+    public SyncKafka(String resTopic, WebSocketIdParser webSocketIdParser) {
         this.webSocketIdParser = webSocketIdParser;
 
         String ip = "192.168.0.218";
@@ -27,7 +27,7 @@ public class SyncKafka extends Thread {
         this.producer = new KafkaProducerEZ(ip, port);
         this.consumer = new KafkaConsumerEZ
                 .Builder(ip, port)
-                .topics("sync")
+                .topics(resTopic)
                 .groupName("test")
                 .sizeBatchReceive(1)
                 .pollWaitingMS(60000)
@@ -50,13 +50,19 @@ public class SyncKafka extends Thread {
     public void run() {
         while (true) {
             for (ConsumerRecord<String, String> record : consumer.getRecords()) {
-                String jsonMsg = record.value();
-                String websocketId = webSocketIdParser.parse(jsonMsg);
+                try {
+                    String jsonMsg = record.value();
+                    System.out.println("응답 메시지: " + jsonMsg);
+                    String websocketId = webSocketIdParser.parse(jsonMsg);
 
-                CompletableFuture<String> future = futureMap.remove(websocketId);
-                if (future != null) {
-                    future.complete(jsonMsg);
+                    CompletableFuture<String> future = futureMap.remove(websocketId);
+                    if (future != null) {
+                        future.complete(jsonMsg);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+
             }
         }
     }
