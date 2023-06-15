@@ -3,7 +3,7 @@ package kr.co.iwaz;
 import static kr.co.iwaz.ChatWebSocketHandler.broadcastMessage;
 import static spark.Spark.*;
 
-public class Chat {
+public class Main {
 
     public static void main(String[] args) throws InterruptedException {
         staticFileLocation("/public"); //index.html 는 다음 위치에서 서비스됨 localhost:4567 (default port)
