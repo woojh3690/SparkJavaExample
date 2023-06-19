@@ -3,8 +3,6 @@ package kr.co.iwaz;
 import com.google.gson.Gson;
 import kr.co.iwaz.model.CommandReq;
 
-import java.util.concurrent.CompletableFuture;
-
 import static kr.co.iwaz.ChatWebSocketHandler.broadcastMessage;
 import static spark.Spark.*;
 
@@ -44,8 +42,7 @@ public class Main {
         post("/command", (request, response) -> {
             String body = request.body();
             System.out.println("받은 메시지: " + body);
-            CompletableFuture<String> future = syncKafka.send("test", body);
-            String kafkaRes = future.get();
+            String kafkaRes = syncKafka.send("test", body);
             System.out.println(kafkaRes);
             return kafkaRes;
         });

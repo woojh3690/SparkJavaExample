@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 public class SyncKafka extends Thread {
 
@@ -34,7 +35,7 @@ public class SyncKafka extends Thread {
         this.webSocketIdParser = webSocketIdParser;
     }
 
-    public CompletableFuture<String> send(String topic, String data) {
+    public String send(String topic, String data) throws ExecutionException, InterruptedException {
         if (!this.producer.send(topic, data)) {
             throw new RuntimeException("Error occurred while sending message");
         }
@@ -42,7 +43,7 @@ public class SyncKafka extends Thread {
         CompletableFuture<String> future = new CompletableFuture<>();
         String websocketId = this.webSocketIdParser.parse(data);
         this.futureMap.put(websocketId, new TimedFuture(future));
-        return future;
+        return future.get();
     }
 
     @Override
