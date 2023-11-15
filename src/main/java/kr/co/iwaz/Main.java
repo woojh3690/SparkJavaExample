@@ -24,7 +24,7 @@ public class Main {
     }
 
     // 백그라운드에서 실시간으로 websocket 에 데이터를 전송 기능 초기화
-    private static void initBackgroundDataSend() throws InterruptedException {
+    private static void initBackgroundDataSend() {
         staticFileLocation("/public"); //index.html 는 다음 위치에서 서비스됨 localhost:4567 (default port)
         webSocket("/chat", ChatWebSocketHandler.class);
     }
